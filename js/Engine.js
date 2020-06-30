@@ -14,8 +14,21 @@ class Engine {
     // Initially, we have no enemies in the game. The enemies property refers to an array
     // that contains instances of the Enemy class
     this.enemies = [];
+    //audio
+    this.gameScoreBox = new Text(this.root, 30, 30);
+    // this.audio = new Audio("./images/music.mp3");
     // We add the background image to the game
+    this.gameOver = new Text(this.root, 190, 150);
+    // this.resetBtn = new Button(this.root, 410, 30);
+    // this.resetBtn.domElement.addEventListener(
+    //   "click",
+    //   function (e) {
+    //     location.reload();
+    //   },
+    //   { once: true }
+    // );
     addBackground(this.root);
+    this.livesLeft = new Text(this.root, 30, 80);
   }
 
   // The gameLoop will run every few milliseconds. It does several things
@@ -23,7 +36,12 @@ class Engine {
   //  - Detects a collision between the player and any enemy
   //  - Removes enemies that are too low from the enemies array
   gameLoop = () => {
-    // This code is to see how much time, in milliseconds, has elapsed since the last
+    this.gameScoreBox.update(`Score: ${gameScore++}`);
+    // this.livesLeft.update(`Lives: ${lives--}`);
+    // this.resetBtn.reset();
+    // This code is to see how
+    // let audio = new Audio("./images/music.mp3");
+    // audio.play();
     // time this method was called.
     // (new Date).getTime() evaluates to the number of milliseconds since January 1st, 1970 at midnight.
     if (this.lastFrame === undefined) {
@@ -36,6 +54,7 @@ class Engine {
     // We use the number of milliseconds since the last call to gameLoop to update the enemy positions.
     // Furthermore, if any enemy is below the bottom of our game, its destroyed property will be set. (See Enemy.js)
     this.enemies.forEach((enemy) => {
+      // console.log(timeDiff);
       enemy.update(timeDiff);
     });
 
@@ -57,17 +76,56 @@ class Engine {
     // We check if the player is dead. If he is, we alert the user
     // and return from the method (Why is the return statement important?)
     if (this.isPlayerDead()) {
-      window.alert('Game over');
+      // window.alert("Game over");
+
+      audio.pause();
+      document.removeEventListener("keydown", keydownHandler);
+      this.gameOver.update(`You lost`);
+
+      // }
+      // this.gameScoreBox.style.display = "none";
+      // this.gameScoreBox.style.display = none;
       return;
     }
 
     // If the player is not dead, then we put a setTimeout to run the gameLoop in 20 milliseconds
     setTimeout(this.gameLoop, 20);
   };
-
+  // audio = document.getElementById(audio);
   // This method is not implemented correctly, which is why
   // the burger never dies. In your exercises you will fix this method.
   isPlayerDead = () => {
-    return false;
+    let playerLeft = this.player.x;
+    let playerRight = this.player.x + PLAYER_WIDTH;
+    let playerTop = GAME_HEIGHT - PLAYER_HEIGHT - 10;
+    let playerBottom = GAME_HEIGHT - 10;
+    let isCollision = false;
+    this.enemies.forEach((enemy) => {
+      let enemyLeft = enemy.x;
+      let enemyRight = enemy.x + ENEMY_WIDTH;
+      let enemyTop = enemy.y;
+      let enemyBottom = enemy.y + ENEMY_HEIGHT;
+      // console.log(enemyLeft);
+      // console.log(playerLeft);
+      if (
+        playerLeft < enemyRight &&
+        playerRight > enemyLeft &&
+        playerTop < enemyBottom &&
+        playerBottom > enemyTop
+      ) {
+        isCollision = true;
+      }
+    });
+    // audio.pause();
+    return isCollision;
+    // console.log(this.player);
   };
+  // life = () => {
+  //   if (this.isPlayerDead) {
+  //     console.log(lives--);
+  //   }
+  //   if (lives <= 0) {
+  //     console.log("hello");
+  //   }
+  // };
 }
